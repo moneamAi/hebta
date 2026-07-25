@@ -192,12 +192,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const ADMIN_EMAIL = "Abdulmonemkaka@gmail.com";
+        const ADMIN_EMAIL = "abdulmonemkaka@gmail.com";
 
         // Auth Logic
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                if (user.email === ADMIN_EMAIL) {
+                // مقارنة الإيميل بصيغة أحرف صغيرة لتلافي أي أخطاء مطبعية
+                if (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                     document.getElementById('loginView').classList.add('hidden');
                     document.getElementById('dashboardView').classList.remove('hidden');
                     loadProducts();
@@ -336,7 +337,6 @@
             }
         };
 
-        // Fix function naming helper reference
         window.toggleOfferProfileOpt = toggleOfferPrice;
     </script>
 </body>
