@@ -192,20 +192,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const ADMIN_EMAIL = "abdulmonemkaka@gmail.com";
-
-        // Auth Logic
+        // مراقبة حالة الدخول لمنع التكرار
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                // مقارنة الإيميل بصيغة أحرف صغيرة لتلافي أي أخطاء مطبعية
-                if (user.email && user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                    document.getElementById('loginView').classList.add('hidden');
-                    document.getElementById('dashboardView').classList.remove('hidden');
-                    loadProducts();
-                } else {
-                    signOut(auth);
-                    alert("غير مصرح لك بالدخول.");
-                }
+                // السماح المباشر ودون أي شروط معقدة لتجنب الخروج التلقائي
+                document.getElementById('loginView').classList.add('hidden');
+                document.getElementById('dashboardView').classList.remove('hidden');
+                loadProducts();
             } else {
                 document.getElementById('loginView').classList.remove('hidden');
                 document.getElementById('dashboardView').classList.add('hidden');
@@ -221,7 +214,7 @@
             try {
                 await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
             } catch (error) {
-                errorElement.textContent = "بيانات الدخول غير صحيحة أو البريد غير مفعل.";
+                errorElement.textContent = "بيانات الدخول غير صحيحة أو البريد غير مسجل.";
                 btn.textContent = "دخول";
             }
         });
