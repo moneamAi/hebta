@@ -176,30 +176,16 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // REPLACE WITH SAME CONFIG AS INDEX.HTML
-        // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyC9r4SsMvIT6kwBAAI2qkpZKdHHQZvsjr8",
-  authDomain: "hepta-kitchen.firebaseapp.com",
-  projectId: "hepta-kitchen",
-  storageBucket: "hepta-kitchen.firebasestorage.app",
-  messagingSenderId: "577230266283",
-  appId: "1:577230266283:web:4f701cdfed7088ead57cee",
-  measurementId: "G-XZ6V3LRHQS"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
+        const firebaseConfig = {
+          apiKey: "AIzaSyC9r4SsMvIT6kwBAAI2qkpZKdHHQZvsjr8",
+          authDomain: "hepta-kitchen.firebaseapp.com",
+          projectId: "hepta-kitchen",
+          storageBucket: "hepta-kitchen.firebasestorage.app",
+          messagingSenderId: "577230266283",
+          appId: "1:577230266283:web:4f701cdfed7088ead57cee",
+          measurementId: "G-XZ6V3LRHQS"
         };
 
         const app = initializeApp(firebaseConfig);
@@ -228,11 +214,13 @@ const analytics = getAnalytics(app);
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('loginBtn');
+            const errorElement = document.getElementById('loginError');
+            errorElement.textContent = "";
             btn.textContent = "جاري الدخول...";
             try {
                 await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
             } catch (error) {
-                document.getElementById('loginError').textContent = "بيانات الدخول غير صحيحة.";
+                errorElement.textContent = "بيانات الدخول غير صحيحة أو البريد غير مفعل.";
                 btn.textContent = "دخول";
             }
         });
@@ -248,8 +236,8 @@ const analytics = getAnalytics(app);
                 tbody.innerHTML = '';
                 let total = 0, offers = 0;
                 
-                snapshot.forEach(doc => {
-                    const p = doc.data();
+                snapshot.forEach(docSnap => {
+                    const p = docSnap.data();
                     total++;
                     if(p.hasOffer) offers++;
                     
@@ -260,8 +248,8 @@ const analytics = getAnalytics(app);
                         <td>${p.price} ج.م</td>
                         <td>${p.hasOffer ? `<span style="color:var(--danger);font-weight:bold;">${p.offerPrice} ج.م</span>` : '-'}</td>
                         <td>
-                            <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="editProduct('${doc.id}')">تعديل</button>
-                            <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteProduct('${doc.id}')">حذف</button>
+                            <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="editProduct('${docSnap.id}')">تعديل</button>
+                            <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteProduct('${docSnap.id}')">حذف</button>
                         </td>
                     `;
                     tbody.appendChild(tr);
@@ -293,7 +281,6 @@ const analytics = getAnalytics(app);
             const id = document.getElementById('productId').value;
             const hasOffer = document.getElementById('pHasOffer').value === 'true';
             
-            // Handle images array
             const imgsStr = document.getElementById('pImages').value;
             const imagesArr = imgsStr ? imgsStr.split(',').map(i => i.trim()).filter(i => i) : [];
 
@@ -320,7 +307,6 @@ const analytics = getAnalytics(app);
             }
         });
 
-        // Global functions for inline Edit/Delete
         window.deleteProduct = async (id) => {
             if(confirm("هل أنت متأكد من حذف هذا المنتج نهائياً؟")) {
                 await deleteDoc(doc(db, "products", id));
@@ -328,9 +314,8 @@ const analytics = getAnalytics(app);
         };
 
         window.editProduct = async (id) => {
-            // Fetch doc from current local state or re-fetch (simpler to re-fetch for safety)
-            import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js').then(async (m) => {
-                const docSnap = await m.getDoc(m.doc(db, "products", id));
+            try {
+                const docSnap = await getDoc(doc(db, "products", id));
                 if(docSnap.exists()) {
                     const d = docSnap.data();
                     document.getElementById('productId').value = id;
@@ -342,12 +327,17 @@ const analytics = getAnalytics(app);
                     document.getElementById('pMainImg').value = d.mainImage;
                     document.getElementById('pImages').value = (d.images || []).join(',');
                     
-                    toggleOfferPrice();
+                    toggleOfferProfileOpt();
                     document.getElementById('modalFormTitle').textContent = 'تعديل المنتج';
                     document.getElementById('productModal').classList.remove('hidden');
                 }
-            });
+            } catch(err) {
+                console.error(err);
+            }
         };
+
+        // Fix function naming helper reference
+        window.toggleOfferProfileOpt = toggleOfferPrice;
     </script>
 </body>
 </html>
