@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مطبخ هيبتا للأكل البيتي | أشهى الوجبات</title>
+    <meta name="description" content="أشهى الوجبات المصنوعة بحب تقدم لكم في مكان واحد من مطبخ هيبتا للأكل البيتي.">
+    <!-- SEO & Open Graph -->
+    <meta property="og:title" content="مطبخ هيبتا للأكل البيتي">
+    <meta property="og:description" content="أشهى الوجبات المصنوعة بحب تقدم لكم في مكان واحد.">
+    <meta property="og:image" content="https://i.ibb.co/F4XJw9v7/image.png">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==================== CSS Variables ==================== */
+        :root {
+            --primary-header: #9C8478;
+            --primary-heading: #A82E2B;
+            --text-main: #000000;
+            --text-muted: #555555;
+            --bg-main: #FFFFFF;
+            --bg-secondary: #FAFAFA;
+            --glass-bg: rgba(156, 132, 120, 0.85);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --shadow-soft: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+            --shadow-hover: 0 15px 45px 0 rgba(168, 46, 43, 0.1);
+            --transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 8px;
+        }
+
+        /* ==================== Reset & Typography ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-secondary);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+        h1, h2, h3, h4 { color: var(--primary-heading); font-weight: 800; }
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        img { max-width: 100%; height: auto; display: block; }
+        button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+
+        /* ==================== UI Components ==================== */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-heading), #d33c39);
+            color: #fff;
+            padding: 12px 32px;
+            border-radius: var(--radius-md);
+            font-size: 1.1rem;
+            font-weight: 700;
+            transition: var(--transition-smooth);
+            box-shadow: 0 4px 15px rgba(168, 46, 43, 0.3);
+            display: inline-block;
+        }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(168, 46, 43, 0.4);
+        }
+
+        /* ==================== Header (Glassmorphism) ==================== */
+        header {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 80px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: var(--transition-smooth);
+        }
+        header.scrolled {
+            height: 70px;
+            background: rgba(156, 132, 120, 0.95);
+            box-shadow: var(--shadow-soft);
+        }
+        .logo-img { height: 50px; transition: var(--transition-smooth); }
+        header.scrolled .logo-img { height: 40px; }
+
+        /* ==================== Hero Section ==================== */
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+            background: radial-gradient(circle at center, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            padding-top: 80px;
+        }
+        .hero-content { z-index: 2; max-width: 800px; padding: 20px; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; animation: fadeInUp 1s ease-out; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); margin-bottom: 40px; animation: fadeInUp 1.2s ease-out; }
+        
+        /* Floating Elements (Micro Interactions) */
+        .shape { position: absolute; border-radius: 50%; opacity: 0.1; z-index: 1; animation: float 6s ease-in-out infinite; }
+        .shape-1 { width: 300px; height: 300px; background: var(--primary-header); top: -50px; right: -50px; }
+        .shape-2 { width: 200px; height: 200px; background: var(--primary-heading); bottom: 100px; left: -20px; animation-delay: 2s; }
+
+        .scroll-indicator {
+            position: absolute; bottom: 30px; left: 50%;
+            transform: translateX(-50%);
+            animation: bounce 2s infinite;
+            cursor: pointer;
+            color: var(--primary-header);
+        }
+        .scroll-indicator svg { width: 30px; height: 30px; }
+
+        /* ==================== Products Section ==================== */
+        .section-title {
+            text-align: center;
+            margin: 80px 0 50px;
+            font-size: 2.5rem;
+            position: relative;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            padding-bottom: 80px;
+        }
+
+        /* Product Card */
+        .card {
+            background: var(--bg-main);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+            transition: var(--transition-smooth);
+            position: relative;
+            opacity: 0; /* For Scroll Reveal */
+            transform: translateY(30px);
+        }
+        .card.reveal { opacity: 1; transform: translateY(0); }
+        .card:hover { transform: translateY(-10px); box-shadow: var(--shadow-hover); }
+        
+        .card-img-wrapper {
+            position: relative;
+            height: 250px;
+            overflow: hidden;
+        }
+        .card-img-wrapper img {
+            width: 100%; height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .card:hover .card-img-wrapper img { transform: scale(1.1); }
+        
+        .badge {
+            position: absolute; top: 15px; right: 15px;
+            background: var(--primary-heading); color: #fff;
+            padding: 5px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem;
+            z-index: 2;
+        }
+
+        .card-content { padding: 25px; text-align: center; }
+        .card-title { font-size: 1.4rem; margin-bottom: 10px; }
+        .card-price-wrapper { display: flex; justify-content: center; align-items: center; gap: 10px; margin-bottom: 20px; }
+        .price { font-size: 1.5rem; font-weight: 800; color: var(--primary-header); }
+        .old-price { font-size: 1.1rem; color: #999; text-decoration: line-through; }
+        
+        .btn-outline {
+            background: transparent; color: var(--primary-heading);
+            border: 2px solid var(--primary-heading);
+            padding: 8px 24px; border-radius: var(--radius-md); font-weight: 600;
+            transition: var(--transition-smooth); width: 100%;
+        }
+        .btn-outline:hover { background: var(--primary-heading); color: #fff; }
+
+        /* Skeleton Loading */
+        .skeleton { background: #eee; background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%); border-radius: 5px; background-size: 200% 100%; animation: 1.5s shine linear infinite; }
+        .skeleton-img { height: 250px; border-radius: 0; }
+        .skeleton-text { height: 20px; margin: 10px 25px; border-radius: 4px; }
+        @keyframes shine { to { background-position-x: -200%; } }
+
+        /* ==================== Modals (Dynamic Views) ==================== */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 2000; opacity: 0; visibility: hidden; transition: var(--transition-smooth);
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .modal-content {
+            background: var(--bg-main); width: 90%; max-width: 900px;
+            border-radius: var(--radius-lg); overflow: hidden;
+            display: grid; grid-template-columns: 1fr 1fr;
+            transform: scale(0.9); transition: var(--transition-smooth);
+            position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.2);
+            max-height: 90vh; overflow-y: auto;
+        }
+        .modal-overlay.active .modal-content { transform: scale(1); }
+        
+        .close-btn {
+            position: absolute; top: 15px; left: 15px;
+            background: #fff; border-radius: 50%; width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; cursor: pointer; z-index: 10; box-shadow: var(--shadow-soft);
+            color: var(--text-main); transition: var(--transition-smooth);
+        }
+        .close-btn:hover { background: var(--primary-heading); color: #fff; }
+
+        .modal-gallery { position: relative; height: 100%; min-height: 300px;}
+        .modal-gallery img { width: 100%; height: 100%; object-fit: cover; position: absolute; opacity: 0; transition: opacity 0.5s ease; }
+        .modal-gallery img.active { opacity: 1; }
+        
+        .gallery-controls {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            display: flex; gap: 10px; z-index: 2;
+        }
+        .dot { width: 12px; height: 12px; background: rgba(255,255,255,0.5); border-radius: 50%; cursor: pointer; transition: 0.3s; }
+        .dot.active { background: #fff; transform: scale(1.2); }
+
+        .modal-details { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+        .modal-details h2 { font-size: 2rem; margin-bottom: 15px; }
+        .modal-details p { color: var(--text-muted); margin-bottom: 20px; }
+        .modal-ingredients { background: var(--bg-secondary); padding: 15px; border-radius: var(--radius-sm); margin-bottom: 25px; font-size: 0.95rem; }
+        
+        /* Order Form Popup (Smaller Modal) */
+        .order-modal .modal-content { grid-template-columns: 1fr; max-width: 500px; padding: 40px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; margin-bottom: 8px; }
+        .form-control {
+            width: 100%; padding: 12px 15px;
+            border: 1px solid #ddd; border-radius: var(--radius-sm);
+            font-family: inherit; font-size: 1rem; transition: 0.3s;
+        }
+        .form-control:focus { border-color: var(--primary-heading); outline: none; box-shadow: 0 0 0 3px rgba(168,46,43,0.1); }
+        textarea.form-control { resize: vertical; min-height: 100px; }
+        .order-summary { background: #f9f9f9; padding: 15px; border-radius: var(--radius-sm); margin-bottom: 20px; border-left: 4px solid var(--primary-header); }
+
+        /* ==================== Footer ==================== */
+        footer {
+            background: var(--text-main); color: #fff; padding: 60px 20px 20px; text-align: center; margin-top: 80px;
+        }
+        .footer-content { max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; align-items: center; }
+        .social-links a { color: #fff; font-size: 1.2rem; margin: 0 10px; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
+        .social-links a:hover { color: var(--primary-header); }
+        .footer-bottom { margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; font-size: 0.9rem; color: #aaa; }
+        .admin-link { color: #777; font-size: 0.8rem; text-decoration: none; margin-top: 10px; display: inline-block; transition: 0.3s; }
+        .admin-link:hover { color: #fff; }
+
+        /* ==================== Animations ==================== */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-20px); } 100% { transform: translateY(0px); } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); } 40% { transform: translateY(-20px) translateX(-50%); } 60% { transform: translateY(-10px) translateX(-50%); } }
+
+        /* ==================== Responsive ==================== */
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+            .modal-content { grid-template-columns: 1fr; }
+            .modal-gallery { height: 250px; }
+            .modal-details { padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header id="header">
+        <img src="https://i.ibb.co/F4XJw9v7/image.png" alt="مطبخ هيبتا" class="logo-img">
+    </header>
+
+    <!-- Hero -->
+    <section class="hero" id="home">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+        <div class="hero-content">
+            <h1>مطبخ هيبتا للأكل البيتي</h1>
+            <p>أشهى الوجبات المصنوعة بحب تقدم لكم في مكان واحد. تجربة طعام استثنائية تأخذك إلى دفء المنزل.</p>
+            <button class="btn-primary" onclick="scrollToProducts()">ابدأ الطلب</button>
+        </div>
+        <div class="scroll-indicator" onclick="scrollToProducts()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </div>
+    </section>
+
+    <!-- Products -->
+    <section id="products">
+        <div class="container">
+            <h2 class="section-title">قائمة أشهى المأكولات</h2>
+            <div class="products-grid" id="productsGrid">
+                <!-- Skeletons will be replaced by JS -->
+                <div class="card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text" style="width: 50%;"></div><div class="skeleton-text"></div></div>
+                <div class="card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text" style="width: 50%;"></div><div class="skeleton-text"></div></div>
+                <div class="card skeleton"><div class="skeleton-img"></div><div class="skeleton-text"></div><div class="skeleton-text" style="width: 50%;"></div><div class="skeleton-text"></div></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Product Details Modal -->
+    <div class="modal-overlay" id="productModal">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('productModal')">&times;</div>
+            <div class="modal-gallery" id="modalGallery">
+                <!-- Images injected here -->
+                <div class="gallery-controls" id="galleryControls"></div>
+            </div>
+            <div class="modal-details">
+                <h2 id="modalTitle">اسم المنتج</h2>
+                <p id="modalDesc">وصف المنتج</p>
+                <div class="modal-ingredients" id="modalIngredients">
+                    <strong>المكونات:</strong> <span id="modalIngText">...</span>
+                </div>
+                <div class="card-price-wrapper" style="justify-content: flex-start;">
+                    <span class="price" id="modalPrice">0 ج.م</span>
+                    <span class="old-price" id="modalOldPrice"></span>
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 20px;" onclick="openOrderModal()">اطلب الآن</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Form Modal -->
+    <div class="modal-overlay order-modal" id="orderModal">
+        <div class="modal-content">
+            <div class="close-btn" onclick="closeModal('orderModal')">&times;</div>
+            <h2>تأكيد الطلب</h2>
+            <div class="order-summary">
+                <strong id="orderItemName">المنتج</strong> - <span id="orderItemPrice" style="color: var(--primary-header); font-weight: bold;">0</span>
+            </div>
+            <form id="orderForm" onsubmit="submitOrder(event)">
+                <div class="form-group">
+                    <label>الاسم الكريم</label>
+                    <input type="text" id="custName" class="form-control" required placeholder="أدخل اسمك">
+                </div>
+                <div class="form-group">
+                    <label>رقم الهاتف</label>
+                    <input type="tel" id="custPhone" class="form-control" required placeholder="مثال: 01xxxxxxxxx">
+                </div>
+                <div class="form-group">
+                    <label>العنوان بالتفصيل</label>
+                    <textarea id="custAddress" class="form-control" required placeholder="المنطقة، الشارع، رقم العمارة، الدور..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات (اختياري)</label>
+                    <textarea id="custNotes" class="form-control" placeholder="بدون شطة، تسوية زيادة..."></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">إرسال الطلب عبر WhatsApp</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <img src="https://i.ibb.co/F4XJw9v7/image.png" alt="شعار الفوتر" style="height: 60px; filter: brightness(0) invert(1); opacity: 0.8;">
+            <p>نصنع طعامكم بحب، لنوفر لكم تجربة الأكل البيتي الأصيل بمكونات طازجة وجودة لا تضاهى.</p>
+            <div class="social-links">
+                <a href="tel:01111759207">📞 01111759207</a>
+                <a href="https://www.facebook.com/share/1BriZkmg51/" target="_blank">🌐 فيسبوك</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            © جميع حقوق الطبع والنشر محفوظة لمطبخ هيبتا للأكل البيتي 2026<br>
+            <a href="admin.html" class="admin-link">الدخول إلى لوحة التحكم</a>
+        </div>
+    </footer>
+
+    <!-- Firebase & Application Logic -->
+    <script type="module">
+        // 1. Firebase Configuration (REPLACE WITH YOUR ACTUAL CONFIG)
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC9r4SsMvIT6kwBAAI2qkpZKdHHQZvsjr8",
+  authDomain: "hepta-kitchen.firebaseapp.com",
+  projectId: "hepta-kitchen",
+  storageBucket: "hepta-kitchen.firebasestorage.app",
+  messagingSenderId: "577230266283",
+  appId: "1:577230266283:web:4f701cdfed7088ead57cee",
+  measurementId: "G-XZ6V3LRHQS"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // State Variables
+        let productsData = [];
+        let currentProduct = null;
+        let currentGalleryIndex = 0;
+
+        // Sticky Header & Scroll Reveal
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        // Intersection Observer for Animations
+        const revealOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) {
+                    entry.target.classList.add('reveal');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, revealOptions);
+
+        // Fetch Data from Firestore
+        async function fetchProducts() {
+            const grid = document.getElementById('productsGrid');
+            try {
+                const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+                const querySnapshot = await getDocs(q);
+                productsData = [];
+                grid.innerHTML = ''; // clear skeletons
+
+                querySnapshot.forEach((doc) => {
+                    productsData.push({ id: doc.id, ...doc.data() });
+                });
+
+                if(productsData.length === 0) {
+                    grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1;">لا توجد منتجات حالياً.</p>';
+                    return;
+                }
+
+                productsData.forEach(product => {
+                    const priceHTML = product.hasOffer 
+                        ? `<span class="price">${product.offerPrice} ج.م</span><span class="old-price">${product.price} ج.م</span>`
+                        : `<span class="price">${product.price} ج.م</span>`;
+                    
+                    const badgeHTML = product.hasOffer ? `<div class="badge">عرض خاص</div>` : '';
+
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.innerHTML = `
+                        ${badgeHTML}
+                        <div class="card-img-wrapper">
+                            <img src="${product.mainImage}" alt="${product.title}" loading="lazy">
+                        </div>
+                        <div class="card-content">
+                            <h3 class="card-title">${product.title}</h3>
+                            <div class="card-price-wrapper">${priceHTML}</div>
+                            <button class="btn-outline" onclick="window.openProduct('${product.id}')">عرض التفاصيل</button>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                    revealObserver.observe(card);
+                });
+            } catch (error) {
+                console.error("Error fetching products: ", error);
+                grid.innerHTML = '<p style="text-align:center; grid-column: 1/-1; color:red;">حدث خطأ في جلب البيانات.</p>';
+            }
+        }
+
+        // Global functions for inline HTML event handlers
+        window.scrollToProducts = () => {
+            document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        window.openProduct = (id) => {
+            currentProduct = productsData.find(p => p.id === id);
+            if(!currentProduct) return;
+
+            document.getElementById('modalTitle').textContent = currentProduct.title;
+            document.getElementById('modalDesc').textContent = currentProduct.description;
+            // Assuming description contains ingredients or there is a specific field
+            document.getElementById('modalIngText').textContent = currentProduct.ingredients || 'مكونات طازجة وطبيعية 100%';
+
+            if(currentProduct.hasOffer) {
+                document.getElementById('modalPrice').textContent = `${currentProduct.offerPrice} ج.م`;
+                document.getElementById('modalOldPrice').textContent = `${currentProduct.price} ج.م`;
+            } else {
+                document.getElementById('modalPrice').textContent = `${currentProduct.price} ج.م`;
+                document.getElementById('modalOldPrice').textContent = '';
+            }
+
+            // Setup Gallery
+            const galleryDiv = document.getElementById('modalGallery');
+            const controlsDiv = document.getElementById('galleryControls');
+            // Cleanup previous images
+            galleryDiv.querySelectorAll('img').forEach(img => img.remove());
+            controlsDiv.innerHTML = '';
+            
+            let allImages = [currentProduct.mainImage];
+            if(currentProduct.images && Array.isArray(currentProduct.images)) {
+                allImages = [...allImages, ...currentProduct.images];
+            }
+
+            allImages.forEach((imgSrc, index) => {
+                const imgEl = document.createElement('img');
+                imgEl.src = imgSrc;
+                if(index === 0) imgEl.classList.add('active');
+                galleryDiv.insertBefore(imgEl, controlsDiv);
+
+                if(allImages.length > 1) {
+                    const dot = document.createElement('div');
+                    dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                    dot.onclick = () => window.changeSlide(index);
+                    controlsDiv.appendChild(dot);
+                }
+            });
+            currentGalleryIndex = 0;
+
+            document.getElementById('productModal').classList.add('active');
+        };
+
+        window.changeSlide = (index) => {
+            const gallery = document.getElementById('modalGallery');
+            const images = gallery.querySelectorAll('img');
+            const dots = document.getElementById('galleryControls').querySelectorAll('.dot');
+            
+            images[currentGalleryIndex].classList.remove('active');
+            if(dots.length) dots[currentGalleryIndex].classList.remove('active');
+            
+            currentGalleryIndex = index;
+            
+            images[currentGalleryIndex].classList.add('active');
+            if(dots.length) dots[currentGalleryIndex].classList.add('active');
+        };
+
+        window.closeModal = (id) => {
+            document.getElementById(id).classList.remove('active');
+        };
+
+        window.openOrderModal = () => {
+            window.closeModal('productModal');
+            document.getElementById('orderItemName').textContent = currentProduct.title;
+            const finalPrice = currentProduct.hasOffer ? currentProduct.offerPrice : currentProduct.price;
+            document.getElementById('orderItemPrice').textContent = `${finalPrice} ج.م`;
+            document.getElementById('orderModal').classList.add('active');
+        };
+
+        window.submitOrder = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('custName').value;
+            const phone = document.getElementById('custPhone').value;
+            const address = document.getElementById('custAddress').value;
+            const notes = document.getElementById('custNotes').value;
+            
+            const finalPrice = currentProduct.hasOffer ? currentProduct.offerPrice : currentProduct.price;
+            const dateStr = new Date().toLocaleString('ar-EG');
+
+            const msg = `
+==================
+طلب جديد 🛎️
+==================
+*العميل:* ${name}
+*رقم الهاتف:* ${phone}
+*العنوان:* ${address}
+
+*المنتج:* ${currentProduct.title}
+*السعر:* ${finalPrice} ج.م
+*التاريخ:* ${dateStr}
+
+*الملاحظات:* ${notes ? notes : 'لا يوجد'}
+==================
+            `.trim();
+
+            const encodedMsg = encodeURIComponent(msg);
+            const whatsappUrl = `https://wa.me/201111759207?text=${encodedMsg}`;
+            
+            window.open(whatsappUrl, '_blank');
+            window.closeModal('orderModal');
+            e.target.reset(); // reset form
+        };
+
+        // Init
+        document.addEventListener('DOMContentLoaded', fetchProducts);
+    </script>
+</body>
+</html>

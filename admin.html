@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | مطبخ هيبتا</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #9C8478; --danger: #A82E2B; --dark: #222; --light: #f4f6f9;
+            --white: #ffffff; --border: #e0e0e0; --radius: 12px;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; }
+        body { background: var(--light); color: var(--dark); }
+        
+        .hidden { display: none !important; }
+        .btn { padding: 10px 20px; border: none; border-radius: var(--radius); cursor: pointer; font-weight: 600; color: #fff; transition: 0.3s; }
+        .btn-primary { background: var(--primary); }
+        .btn-primary:hover { background: #857065; }
+        .btn-danger { background: var(--danger); }
+        .btn-danger:hover { background: #8a2422; }
+        
+        /* Auth Screen */
+        .auth-container { height: 100vh; display: flex; align-items: center; justify-content: center; background: #eceff1; }
+        .auth-box { background: var(--white); padding: 40px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        .auth-box img { height: 60px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; text-align: right; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; }
+        
+        /* Dashboard Layout */
+        .dashboard { display: grid; grid-template-columns: 250px 1fr; height: 100vh; }
+        .sidebar { background: var(--white); border-left: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+        .sidebar-brand { font-size: 1.5rem; font-weight: 800; color: var(--danger); margin-bottom: 40px; text-align: center; }
+        .nav-item { padding: 12px; margin-bottom: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .nav-item:hover, .nav-item.active { background: rgba(156, 132, 120, 0.1); color: var(--primary); font-weight: bold; }
+        .logout-btn { margin-top: auto; color: var(--danger); }
+        
+        .main-content { padding: 30px; overflow-y: auto; }
+        .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        
+        /* Stats Cards */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .stat-card { background: var(--white); padding: 20px; border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center; }
+        .stat-card h3 { font-size: 2rem; color: var(--primary); }
+        .stat-card p { color: #666; font-size: 0.9rem; }
+        
+        /* Table */
+        .table-container { background: var(--white); border-radius: var(--radius); box-shadow: 0 4px 6px rgba(0,0,0,0.05); overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; text-align: right; }
+        th, td { padding: 15px; border-bottom: 1px solid var(--border); }
+        th { background: #fafafa; font-weight: 600; color: #555; }
+        .product-img-td { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
+        
+        /* Form Modal */
+        .modal { position: fixed; top:0; left:0; right:0; bottom:0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+        .modal-body { background: var(--white); width: 90%; max-width: 600px; padding: 30px; border-radius: var(--radius); max-height: 90vh; overflow-y: auto; }
+        .form-row { display: flex; gap: 15px; }
+        .form-row .form-group { flex: 1; }
+        
+        /* Loader */
+        .loader { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <!-- Login View -->
+    <div id="loginView" class="auth-container">
+        <div class="auth-box">
+            <img src="https://i.ibb.co/F4XJw9v7/image.png" alt="Logo">
+            <h2>تسجيل الدخول للإدارة</h2>
+            <p style="color:red; font-size:0.8rem; margin-bottom: 15px;" id="loginError"></p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="email" class="form-control" placeholder="البريد الإلكتروني" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" class="form-control" placeholder="كلمة المرور" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;" id="loginBtn">دخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard View -->
+    <div id="dashboardView" class="dashboard hidden">
+        <div class="sidebar">
+            <div class="sidebar-brand">مطبخ هيبتا</div>
+            <div class="nav-item active">المنتجات</div>
+            <div class="nav-item logout-btn" onclick="logout()">تسجيل الخروج</div>
+        </div>
+        <div class="main-content">
+            <div class="header-flex">
+                <h2>إدارة المنتجات</h2>
+                <button class="btn btn-primary" onclick="openProductModal()">+ إضافة منتج جديد</button>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="totalProducts">0</h3>
+                    <p>إجمالي المنتجات</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="totalOffers">0</h3>
+                    <p>العروض النشطة</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الصورة</th>
+                            <th>الاسم</th>
+                            <th>السعر</th>
+                            <th>العرض</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <tr><td colspan="5" style="text-align:center;"><div class="loader"></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Form Modal -->
+    <div id="productModal" class="modal hidden">
+        <div class="modal-body">
+            <h3 id="modalFormTitle" style="margin-bottom: 20px;">إضافة منتج</h3>
+            <form id="productForm">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label>اسم المنتج</label>
+                    <input type="text" id="pTitle" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>الوصف والمكونات</label>
+                    <textarea id="pDesc" class="form-control" rows="3" required></textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>السعر الأساسي (ج.م)</label>
+                        <input type="number" id="pPrice" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>هل يوجد عرض؟</label>
+                        <select id="pHasOffer" class="form-control" onchange="toggleOfferPrice()">
+                            <option value="false">لا</option>
+                            <option value="true">نعم</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="offerPriceGroup" style="display:none;">
+                        <label>سعر العرض (ج.م)</label>
+                        <input type="number" id="pOfferPrice" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>الصورة الرئيسية (رابط URL لسرعة الرفع)</label>
+                    <input type="url" id="pMainImg" class="form-control" placeholder="https://..." required>
+                    <small style="color:#777;">* لضمان السرعة، ارفع الصور على ImgBB وضع الرابط هنا.</small>
+                </div>
+                <div class="form-group">
+                    <label>صور إضافية (مفصولة بفاصلة ,)</label>
+                    <input type="text" id="pImages" class="form-control" placeholder="رابط1, رابط2...">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button type="submit" class="btn btn-primary" style="flex:1;">حفظ المنتج</button>
+                    <button type="button" class="btn btn-danger" onclick="closeProductModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        // REPLACE WITH SAME CONFIG AS INDEX.HTML
+        // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyC9r4SsMvIT6kwBAAI2qkpZKdHHQZvsjr8",
+  authDomain: "hepta-kitchen.firebaseapp.com",
+  projectId: "hepta-kitchen",
+  storageBucket: "hepta-kitchen.firebasestorage.app",
+  messagingSenderId: "577230266283",
+  appId: "1:577230266283:web:4f701cdfed7088ead57cee",
+  measurementId: "G-XZ6V3LRHQS"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        const ADMIN_EMAIL = "Abdulmonemkaka@gmail.com";
+
+        // Auth Logic
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                if (user.email === ADMIN_EMAIL) {
+                    document.getElementById('loginView').classList.add('hidden');
+                    document.getElementById('dashboardView').classList.remove('hidden');
+                    loadProducts();
+                } else {
+                    signOut(auth);
+                    alert("غير مصرح لك بالدخول.");
+                }
+            } else {
+                document.getElementById('loginView').classList.remove('hidden');
+                document.getElementById('dashboardView').classList.add('hidden');
+            }
+        });
+
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('loginBtn');
+            btn.textContent = "جاري الدخول...";
+            try {
+                await signInWithEmailAndPassword(auth, document.getElementById('email').value, document.getElementById('password').value);
+            } catch (error) {
+                document.getElementById('loginError').textContent = "بيانات الدخول غير صحيحة.";
+                btn.textContent = "دخول";
+            }
+        });
+
+        window.logout = () => signOut(auth);
+
+        // Dashboard Logic (Real-time updates)
+        let productsRef = collection(db, "products");
+        
+        function loadProducts() {
+            onSnapshot(productsRef, (snapshot) => {
+                const tbody = document.getElementById('productsTableBody');
+                tbody.innerHTML = '';
+                let total = 0, offers = 0;
+                
+                snapshot.forEach(doc => {
+                    const p = doc.data();
+                    total++;
+                    if(p.hasOffer) offers++;
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><img src="${p.mainImage}" class="product-img-td"></td>
+                        <td>${p.title}</td>
+                        <td>${p.price} ج.م</td>
+                        <td>${p.hasOffer ? `<span style="color:var(--danger);font-weight:bold;">${p.offerPrice} ج.م</span>` : '-'}</td>
+                        <td>
+                            <button class="btn btn-primary" style="padding:5px 10px; font-size:0.8rem;" onclick="editProduct('${doc.id}')">تعديل</button>
+                            <button class="btn btn-danger" style="padding:5px 10px; font-size:0.8rem;" onclick="deleteProduct('${doc.id}')">حذف</button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                document.getElementById('totalProducts').textContent = total;
+                document.getElementById('totalOffers').textContent = offers;
+            });
+        }
+
+        // Form Logic
+        window.openProductModal = () => {
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('modalFormTitle').textContent = 'إضافة منتج جديد';
+            toggleOfferPrice();
+            document.getElementById('productModal').classList.remove('hidden');
+        };
+
+        window.closeProductModal = () => document.getElementById('productModal').classList.add('hidden');
+        
+        window.toggleOfferPrice = () => {
+            const hasOffer = document.getElementById('pHasOffer').value === 'true';
+            document.getElementById('offerPriceGroup').style.display = hasOffer ? 'block' : 'none';
+        };
+
+        document.getElementById('productForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('productId').value;
+            const hasOffer = document.getElementById('pHasOffer').value === 'true';
+            
+            // Handle images array
+            const imgsStr = document.getElementById('pImages').value;
+            const imagesArr = imgsStr ? imgsStr.split(',').map(i => i.trim()).filter(i => i) : [];
+
+            const data = {
+                title: document.getElementById('pTitle').value,
+                description: document.getElementById('pDesc').value,
+                price: Number(document.getElementById('pPrice').value),
+                hasOffer: hasOffer,
+                offerPrice: hasOffer ? Number(document.getElementById('pOfferPrice').value) : 0,
+                mainImage: document.getElementById('pMainImg').value,
+                images: imagesArr
+            };
+
+            try {
+                if (id) {
+                    await updateDoc(doc(db, "products", id), data);
+                } else {
+                    data.createdAt = serverTimestamp();
+                    await addDoc(productsRef, data);
+                }
+                closeProductModal();
+            } catch (err) {
+                alert("حدث خطأ أثناء الحفظ: " + err.message);
+            }
+        });
+
+        // Global functions for inline Edit/Delete
+        window.deleteProduct = async (id) => {
+            if(confirm("هل أنت متأكد من حذف هذا المنتج نهائياً؟")) {
+                await deleteDoc(doc(db, "products", id));
+            }
+        };
+
+        window.editProduct = async (id) => {
+            // Fetch doc from current local state or re-fetch (simpler to re-fetch for safety)
+            import('https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js').then(async (m) => {
+                const docSnap = await m.getDoc(m.doc(db, "products", id));
+                if(docSnap.exists()) {
+                    const d = docSnap.data();
+                    document.getElementById('productId').value = id;
+                    document.getElementById('pTitle').value = d.title;
+                    document.getElementById('pDesc').value = d.description;
+                    document.getElementById('pPrice').value = d.price;
+                    document.getElementById('pHasOffer').value = d.hasOffer ? 'true' : 'false';
+                    document.getElementById('pOfferPrice').value = d.offerPrice || '';
+                    document.getElementById('pMainImg').value = d.mainImage;
+                    document.getElementById('pImages').value = (d.images || []).join(',');
+                    
+                    toggleOfferPrice();
+                    document.getElementById('modalFormTitle').textContent = 'تعديل المنتج';
+                    document.getElementById('productModal').classList.remove('hidden');
+                }
+            });
+        };
+    </script>
+</body>
+</html>
